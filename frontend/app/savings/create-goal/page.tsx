@@ -4,11 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import GoalCTASection from './components/GoalCTASection';
+import CreateGoalForm from './components/CreateGoalForm';
 
 export default function CreateGoalPage() {
   return (
     <section className="min-h-screen w-full bg-[#0A1A1A]">
-      {/* Header with back button */}
       <div className="w-full bg-[#0A1A1A] border-b border-white/5">
         <div className="w-full max-w-7xl mx-auto px-6 md:px-8 pt-6 pb-6">
           <Link
@@ -28,6 +28,7 @@ export default function CreateGoalPage() {
       </div>
 
       <GoalCTASection />
+      <CreateGoalForm />
     </section>
   );
 }
