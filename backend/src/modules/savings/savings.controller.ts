@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Param,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -13,12 +14,14 @@ import {
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiParam,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { SavingsService } from './savings.service';
 import { SavingsProduct } from './entities/savings-product.entity';
 import { UserSubscription } from './entities/user-subscription.entity';
 import { SubscribeDto } from './dto/subscribe.dto';
+import { ProductDetailsDto } from './dto/product-details.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { SavingsGoalProgress } from './savings.service';
@@ -33,6 +36,58 @@ export class SavingsController {
   @ApiResponse({ status: 200, description: 'List of savings products' })
   async getProducts(): Promise<SavingsProduct[]> {
     return await this.savingsService.findAllProducts(true);
+  }
+
+  @Get('products/:id')
+  @Throttle({ rpc: { limit: 30, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Get detailed product information with live contract data',
+    description:
+      'Retrieve a single savings product by ID with live total_assets from the Soroban vault contract',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    format: 'uuid',
+    description: 'Product UUID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product details with live contract data',
+    type: ProductDetailsDto,
+  })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  @ApiResponse({
+    status: 503,
+    description: 'Soroban RPC service unavailable',
+  })
+  @ApiResponse({
+    status: 504,
+    description: 'Soroban RPC request timeout',
+  })
+  async getProductDetails(@Param('id') id: string): Promise<ProductDetailsDto> {
+    const { product, totalAssets } =
+      await this.savingsService.findProductWithLiveData(id);
+
+    const totalAssetsXlm = totalAssets / 10_000_000;
+
+    return {
+      id: product.id,
+      name: product.name,
+      type: product.type,
+      description: product.description,
+      interestRate: product.interestRate,
+      minAmount: product.minAmount,
+      maxAmount: product.maxAmount,
+      tenureMonths: product.tenureMonths,
+      isActive: product.isActive,
+      contractId: product.contractId,
+      totalAssets,
+      totalAssetsXlm,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    };
   }
 
   @Post('subscribe')
