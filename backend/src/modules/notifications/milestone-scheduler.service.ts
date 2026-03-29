@@ -97,10 +97,7 @@ export class MilestoneSchedulerService {
                   },
                 );
               } catch (e) {
-                this.logger.warn(
-                  'Failed to insert milestone analytics row',
-                  e as any,
-                );
+                this.logger.warn('Failed to insert milestone analytics row', e);
               }
             }
           }
@@ -109,7 +106,7 @@ export class MilestoneSchedulerService {
 
       this.logger.log('Daily milestone scheduler completed');
     } catch (error) {
-      this.logger.error('Error running milestone scheduler', error as any);
+      this.logger.error('Error running milestone scheduler', error);
     }
   }
 }

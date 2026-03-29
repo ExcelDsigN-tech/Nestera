@@ -102,4 +102,28 @@ export class MailService {
       );
     }
   }
+
+  async sendWaitlistAvailabilityEmail(
+    userEmail: string,
+    name: string,
+    productId: string,
+  ): Promise<void> {
+    try {
+      await this.mailerService.sendMail({
+        to: userEmail,
+        subject: 'A savings product you waited for is available',
+        template: './waitlist-available',
+        context: {
+          name: name || 'User',
+          productId,
+        },
+      });
+      this.logger.log(`Waitlist availability email sent to ${userEmail}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send waitlist availability email to ${userEmail}`,
+        error,
+      );
+    }
+  }
 }

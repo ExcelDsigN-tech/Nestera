@@ -73,7 +73,8 @@ const envValidationSchema = Joi.object({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const isProduction =
+          configService.get<string>('NODE_ENV') === 'production';
         return {
           pinoHttp: {
             transport: isProduction
@@ -200,4 +201,4 @@ const envValidationSchema = Joi.object({
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
