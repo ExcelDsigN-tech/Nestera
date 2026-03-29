@@ -10,6 +10,10 @@ import { SavingsGoal } from './entities/savings-goal.entity';
 import { WithdrawalRequest } from './entities/withdrawal-request.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { User } from '../user/entities/user.entity';
+import { WaitlistEntry } from './entities/waitlist-entry.entity';
+import { WaitlistEvent } from './entities/waitlist-event.entity';
+import { WaitlistService } from './waitlist.service';
+import { WaitlistController } from './waitlist.controller';
 
 @Module({
   imports: [
@@ -20,10 +24,12 @@ import { User } from '../user/entities/user.entity';
       WithdrawalRequest,
       Transaction,
       User,
+      WaitlistEntry,
+      WaitlistEvent,
     ]),
   ],
-  controllers: [SavingsController],
-  providers: [SavingsService, PredictiveEvaluatorService, RecommendationService],
-  exports: [SavingsService],
+  controllers: [SavingsController, WaitlistController],
+  providers: [SavingsService, PredictiveEvaluatorService, WaitlistService],
+  exports: [SavingsService, WaitlistService],
 })
 export class SavingsModule {}
