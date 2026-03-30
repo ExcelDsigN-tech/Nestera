@@ -11,6 +11,8 @@ import { User } from '../user/entities/user.entity';
 import { SavingsService as BlockchainSavingsService } from '../blockchain/savings.service';
 import { WithdrawalRequest } from './entities/withdrawal-request.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
+import { SavingsProductVersionAudit } from './entities/savings-product-version-audit.entity';
+import { WaitlistService } from './waitlist.service';
 
 describe('SavingsService', () => {
   let service: SavingsService;
@@ -82,6 +84,10 @@ describe('SavingsService', () => {
           useValue: { create: jest.fn(), save: jest.fn(), findOne: jest.fn() },
         },
         {
+          provide: getRepositoryToken(SavingsProductVersionAudit),
+          useValue: { create: jest.fn((v) => v), save: jest.fn() },
+        },
+        {
           provide: getRepositoryToken(Transaction),
           useValue: { create: jest.fn((v) => v), save: jest.fn() },
         },
@@ -112,6 +118,10 @@ describe('SavingsService', () => {
         {
           provide: CACHE_MANAGER,
           useValue: cacheManager,
+        },
+        {
+          provide: WaitlistService,
+          useValue: { joinWaitlist: jest.fn() },
         },
       ],
     }).compile();

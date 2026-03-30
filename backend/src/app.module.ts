@@ -24,7 +24,7 @@ import { ChallengesModule } from './modules/challenges/challenges.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { MailModule } from './modules/mail/mail.module';
-import { RedisCacheModule } from './modules/cache/cache.module';
+import { CacheModule } from './modules/cache/cache.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { ClaimsModule } from './modules/claims/claims.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
@@ -172,7 +172,7 @@ const envValidationSchema = Joi.object({
       },
     }),
     AuthModule,
-    RedisCacheModule,
+    CacheModule,
     HealthModule,
     BlockchainModule,
     UserModule,

@@ -49,9 +49,7 @@ export class GracefulShutdownService implements OnApplicationShutdown {
     await this.closeRedis();
 
     const shutdownDuration = Date.now() - shutdownStartTime;
-    this.logger.log(
-      `Graceful shutdown completed in ${shutdownDuration}ms`,
-    );
+    this.logger.log(`Graceful shutdown completed in ${shutdownDuration}ms`);
   }
 
   private async waitForInFlightRequests(): Promise<void> {
@@ -93,7 +91,22 @@ export class GracefulShutdownService implements OnApplicationShutdown {
     try {
       if (this.cacheManager) {
         this.logger.log('Closing Redis connections...');
-        await this.cacheManager.reset();
+        const cacheAny = this.cacheManager as unknown as {
+          clear?: () => Promise<void>;
+          stores?: Array<{ disconnect?: () => Promise<void> }>;
+        };
+
+        if (cacheAny.clear) {
+          await cacheAny.clear();
+        }
+
+        if (Array.isArray(cacheAny.stores)) {
+          for (const store of cacheAny.stores) {
+            if (store?.disconnect) {
+              await store.disconnect();
+            }
+          }
+        }
         this.logger.log('Redis connections closed');
       }
     } catch (error) {

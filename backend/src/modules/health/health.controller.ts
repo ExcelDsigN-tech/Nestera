@@ -71,11 +71,11 @@ export class HealthController {
         'soroban-rpc',
         'horizon',
       ];
-      
+
       if (check.status === 'fulfilled') {
         return check.value;
       }
-      
+
       return {
         [services[index]]: {
           status: 'down',
@@ -130,7 +130,10 @@ export class HealthController {
     summary: 'Get health check history',
     description: 'Retrieve historical health check data',
   })
-  getHistory(@Query('service') service?: string, @Query('limit') limit: number = 100) {
+  getHistory(
+    @Query('service') service?: string,
+    @Query('limit') limit: number = 100,
+  ) {
     return {
       history: this.healthHistory.getHistory(service, limit),
     };

@@ -384,7 +384,10 @@ export class SavingsController {
     @Body() dto: CompareProductsDto,
     @CurrentUser() user: { id: string; email: string },
   ) {
-    return this.productComparisonService.compareProducts(user.id, dto.productIds);
+    return this.productComparisonService.compareProducts(
+      user.id,
+      dto.productIds,
+    );
   }
 
   @Post('auto-deposit/create')
@@ -402,7 +405,9 @@ export class SavingsController {
   @Get('auto-deposit')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'List all recurring auto-deposit schedules for user' })
+  @ApiOperation({
+    summary: 'List all recurring auto-deposit schedules for user',
+  })
   async listAutoDepositSchedules(
     @CurrentUser() user: { id: string; email: string },
   ) {

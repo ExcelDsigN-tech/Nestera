@@ -54,7 +54,10 @@ describe('AutoDepositService', () => {
         },
         { provide: getRepositoryToken(SavingsProduct), useValue: productRepo },
         { provide: getRepositoryToken(User), useValue: userRepo },
-        { provide: BlockchainSavingsService, useValue: blockchainSavingsService },
+        {
+          provide: BlockchainSavingsService,
+          useValue: blockchainSavingsService,
+        },
         { provide: MailService, useValue: mailService },
         { provide: EventEmitter2, useValue: eventEmitter },
       ],

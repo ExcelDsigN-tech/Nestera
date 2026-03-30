@@ -1,4 +1,10 @@
-import { IsOptional, IsDateString, IsNumber, IsEnum } from 'class-validator';
+import {
+  IsOptional,
+  IsDateString,
+  IsNumber,
+  IsEnum,
+  IsString,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum DateRange {
@@ -64,5 +70,3 @@ export class TransactionAnalyticsFilterDto extends DateRangeFilterDto {
   @IsString()
   transactionType?: string;
 }
-
-import { IsString } from 'class-validator';

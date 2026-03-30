@@ -28,7 +28,10 @@ describe('GoalTemplatesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GoalTemplatesService,
-        { provide: getRepositoryToken(SavingsGoalTemplate), useValue: templateRepo },
+        {
+          provide: getRepositoryToken(SavingsGoalTemplate),
+          useValue: templateRepo,
+        },
         {
           provide: getRepositoryToken(SavingsGoalTemplateUsage),
           useValue: usageRepo,
@@ -63,9 +66,13 @@ describe('GoalTemplatesService', () => {
     });
     savingsService.createGoal.mockResolvedValue({ id: 'goal-1' });
 
-    const result = await service.createGoalFromTemplate('user-1', 'template-1', {
-      targetAmount: 3000,
-    });
+    const result = await service.createGoalFromTemplate(
+      'user-1',
+      'template-1',
+      {
+        targetAmount: 3000,
+      },
+    );
 
     expect(result.goal.id).toBe('goal-1');
     expect(savingsService.createGoal).toHaveBeenCalledWith(

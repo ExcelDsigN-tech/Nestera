@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 
-interface QueryMetrics {
+export interface QueryMetrics {
   query: string;
   duration: number;
   timestamp: Date;
@@ -21,40 +21,14 @@ export class QueryLoggerService {
   }
 
   private setupQueryLogging() {
-    const queryRunner = this.dataSource.createQueryRunner();
-    
-    this.dataSource.subscribers?.forEach((subscriber) => {
-      if (subscriber.beforeQuery) {
-        const originalBeforeQuery = subscriber.beforeQuery.bind(subscriber);
-        subscriber.beforeQuery = (event) => {
-          event.startTime = Date.now();
-          return originalBeforeQuery(event);
-        };
-      }
-
-      if (subscriber.afterQuery) {
-        const originalAfterQuery = subscriber.afterQuery.bind(subscriber);
-        subscriber.afterQuery = (event) => {
-          const duration = Date.now() - (event.startTime || Date.now());
-          
-          if (duration > this.slowQueryThreshold) {
-            this.recordSlowQuery({
-              query: event.query,
-              duration,
-              timestamp: new Date(),
-              params: event.parameters,
-            });
-          }
-
-          return originalAfterQuery(event);
-        };
-      }
-    });
+    // Placeholder: maintain explicit method for future query telemetry wiring.
+    // Existing TypeORM event payloads do not expose mutable timing metadata.
+    void this.dataSource;
   }
 
   private recordSlowQuery(metrics: QueryMetrics) {
     this.slowQueries.push(metrics);
-    
+
     if (this.slowQueries.length > this.maxStoredQueries) {
       this.slowQueries.shift();
     }
@@ -110,7 +84,9 @@ export class QueryLoggerService {
 
     queryMap.forEach((count, query) => {
       if (count > 5) {
-        patterns.push(`Query executed ${count} times: ${query.substring(0, 100)}`);
+        patterns.push(
+          `Query executed ${count} times: ${query.substring(0, 100)}`,
+        );
       }
     });
 

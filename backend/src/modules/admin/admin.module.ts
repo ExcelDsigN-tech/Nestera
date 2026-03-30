@@ -29,8 +29,6 @@ import { SavingsProduct } from '../savings/entities/savings-product.entity';
 import { LedgerTransaction } from '../blockchain/entities/transaction.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { Dispute, DisputeTimeline } from '../disputes/entities/dispute.entity';
-import { NotificationsModule } from '../notifications/notifications.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuditLog } from '../../common/entities/audit-log.entity';
 import { Notification } from '../notifications/entities/notification.entity';
 

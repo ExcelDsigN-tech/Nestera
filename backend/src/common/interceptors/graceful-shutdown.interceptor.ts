@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { GracefulShutdownService } from '../services/graceful-shutdown.service';
 
@@ -20,7 +20,7 @@ export class GracefulShutdownInterceptor implements NestInterceptor {
         statusCode: 503,
         message: 'Service is shutting down',
       });
-      return;
+      return EMPTY;
     }
 
     this.gracefulShutdown.incrementActiveRequests();

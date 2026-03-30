@@ -42,7 +42,8 @@ export class GoalTemplatesService {
       throw new NotFoundException('Savings goal template not found');
     }
 
-    const durationMonths = dto.durationMonths ?? template.suggestedDurationMonths;
+    const durationMonths =
+      dto.durationMonths ?? template.suggestedDurationMonths;
     const targetDate = dto.targetDate
       ? new Date(dto.targetDate)
       : this.resolveTargetDate(durationMonths);

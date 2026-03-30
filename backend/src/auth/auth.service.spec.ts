@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UserService } from '../modules/user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 // import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as bcrypt from 'bcrypt';
@@ -40,6 +41,12 @@ describe('AuthService', () => {
           provide: JwtService,
           useValue: {
             sign: jest.fn().mockReturnValue('mock-token'),
+          },
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(),
           },
         },
         // {

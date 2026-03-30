@@ -57,7 +57,9 @@ export class ProductComparisonService {
     });
 
     if (products.length !== uniqueProductIds.length) {
-      throw new NotFoundException('One or more savings products were not found');
+      throw new NotFoundException(
+        'One or more savings products were not found',
+      );
     }
 
     const goals = await this.goalRepository.find({ where: { userId } });

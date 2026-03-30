@@ -29,7 +29,8 @@ export class MilestoneRewardsService {
       return;
     }
 
-    user.rewardPoints = Number(user.rewardPoints || 0) + Number(event.points || 0);
+    user.rewardPoints =
+      Number(user.rewardPoints || 0) + Number(event.points || 0);
     await this.userRepository.save(user);
 
     this.logger.log(

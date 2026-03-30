@@ -45,7 +45,9 @@ export class AutoDepositService {
     }
 
     if (dto.amount < Number(product.minAmount)) {
-      throw new BadRequestException('Amount is below minimum for selected product');
+      throw new BadRequestException(
+        'Amount is below minimum for selected product',
+      );
     }
 
     const now = new Date();
@@ -104,7 +106,9 @@ export class AutoDepositService {
     });
 
     if (!user) {
-      this.logger.warn(`User ${schedule.userId} not found for auto-deposit ${schedule.id}`);
+      this.logger.warn(
+        `User ${schedule.userId} not found for auto-deposit ${schedule.id}`,
+      );
       return;
     }
 

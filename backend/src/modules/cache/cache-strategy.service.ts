@@ -68,20 +68,31 @@ export class CacheStrategyService {
 
   async invalidateByTag(tag: string): Promise<void> {
     try {
-      const keys = await this.cacheManager.store.keys();
+      const cacheAny = this.cacheManager as unknown as {
+        store?: { keys?: () => Promise<string[]> };
+        stores?: Array<{ iterator?: () => AsyncIterableIterator<any> }>;
+      };
+
+      const keys = cacheAny.store?.keys ? await cacheAny.store.keys() : [];
       const keysToDelete = keys.filter((k) => k.includes(tag));
-      
+
       for (const key of keysToDelete) {
         await this.del(key);
       }
-      
-      this.logger.debug(`Invalidated ${keysToDelete.length} keys with tag: ${tag}`);
+
+      this.logger.debug(
+        `Invalidated ${keysToDelete.length} keys with tag: ${tag}`,
+      );
     } catch (error) {
       this.logger.error(`Cache invalidation error for tag ${tag}:`, error);
     }
   }
 
-  async warmCache(key: string, loader: () => Promise<any>, ttl?: number): Promise<void> {
+  async warmCache(
+    key: string,
+    loader: () => Promise<any>,
+    ttl?: number,
+  ): Promise<void> {
     try {
       const data = await loader();
       await this.set(key, data, ttl);
@@ -122,7 +133,8 @@ export class CacheStrategyService {
     const total = this.metrics.hits + this.metrics.misses;
     return {
       ...this.metrics,
-      hitRate: total > 0 ? (this.metrics.hits / total * 100).toFixed(2) + '%' : '0%',
+      hitRate:
+        total > 0 ? ((this.metrics.hits / total) * 100).toFixed(2) + '%' : '0%',
     };
   }
 

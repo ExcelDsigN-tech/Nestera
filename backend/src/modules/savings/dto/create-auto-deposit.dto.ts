@@ -14,7 +14,10 @@ export class CreateAutoDepositDto {
   @Min(1)
   amount: number;
 
-  @ApiProperty({ enum: AutoDepositFrequency, example: AutoDepositFrequency.WEEKLY })
+  @ApiProperty({
+    enum: AutoDepositFrequency,
+    example: AutoDepositFrequency.WEEKLY,
+  })
   @IsEnum(AutoDepositFrequency)
   frequency: AutoDepositFrequency;
 

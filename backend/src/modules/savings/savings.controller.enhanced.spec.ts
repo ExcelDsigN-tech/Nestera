@@ -21,6 +21,13 @@ import { WithdrawalRequest } from './entities/withdrawal-request.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { RpcThrottleGuard } from '../../common/guards/rpc-throttle.guard';
 import { Reflector } from '@nestjs/core';
+import { RecommendationService } from './services/recommendation.service';
+import { SavingsProductVersionAudit } from './entities/savings-product-version-audit.entity';
+import { WaitlistService } from './waitlist.service';
+import { GoalTemplatesService } from './services/goal-templates.service';
+import { GoalMilestonesService } from './services/goal-milestones.service';
+import { ProductComparisonService } from './services/product-comparison.service';
+import { AutoDepositService } from './services/auto-deposit.service';
 
 describe('SavingsController (Enhanced)', () => {
   let controller: SavingsController;
@@ -57,17 +64,48 @@ describe('SavingsController (Enhanced)', () => {
           provide: getRepositoryToken(SavingsProduct),
           useValue: {
             find: jest.fn().mockResolvedValue(mockProducts),
-            findOneBy: jest.fn(),
+            findOneBy: jest.fn(async ({ id }) =>
+              mockProducts.find((p) => p.id === id) || null,
+            ),
           },
         },
         { provide: getRepositoryToken(UserSubscription), useValue: {} },
         { provide: getRepositoryToken(SavingsGoal), useValue: {} },
         { provide: getRepositoryToken(User), useValue: {} },
+        {
+          provide: getRepositoryToken(SavingsProductVersionAudit),
+          useValue: { create: jest.fn((v) => v), save: jest.fn() },
+        },
         { provide: getRepositoryToken(WithdrawalRequest), useValue: {} },
         { provide: getRepositoryToken(Transaction), useValue: {} },
         { provide: BlockchainSavingsService, useValue: {} },
         { provide: PredictiveEvaluatorService, useValue: {} },
-        { provide: RecommendationService, useValue: { getRecommendations: jest.fn() } },
+        { provide: WaitlistService, useValue: { joinWaitlist: jest.fn() } },
+        {
+          provide: RecommendationService,
+          useValue: { getRecommendations: jest.fn() },
+        },
+        {
+          provide: GoalTemplatesService,
+          useValue: { listTemplates: jest.fn(), createGoalFromTemplate: jest.fn() },
+        },
+        {
+          provide: GoalMilestonesService,
+          useValue: { getGoalMilestones: jest.fn(), addCustomMilestone: jest.fn() },
+        },
+        {
+          provide: ProductComparisonService,
+          useValue: { compareProducts: jest.fn() },
+        },
+        {
+          provide: AutoDepositService,
+          useValue: {
+            createSchedule: jest.fn(),
+            listSchedules: jest.fn(),
+            pauseSchedule: jest.fn(),
+            cancelSchedule: jest.fn(),
+          },
+        },
         { provide: ConfigService, useValue: { get: jest.fn() } },
         { provide: CACHE_MANAGER, useValue: { del: jest.fn() } },
         { provide: 'THROTTLER:MODULE_OPTIONS', useValue: {} },

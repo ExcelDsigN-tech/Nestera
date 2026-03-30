@@ -7,6 +7,9 @@ import { SavingsProduct } from '../savings/entities/savings-product.entity';
 import { ProtocolMetrics } from './entities/protocol-metrics.entity';
 import { OracleService } from './services/oracle.service';
 import { SavingsService } from '../blockchain/savings.service';
+import { User } from '../user/entities/user.entity';
+import { UserSubscription } from '../savings/entities/user-subscription.entity';
+import { Transaction } from '../transactions/entities/transaction.entity';
 
 describe('AdminAnalyticsService', () => {
   let service: AdminAnalyticsService;
@@ -30,6 +33,47 @@ describe('AdminAnalyticsService', () => {
   const mockProtocolMetricsRepository = {
     create: jest.fn(),
     save: jest.fn(),
+  };
+
+  const mockUserRepository = {
+    count: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn().mockResolvedValue([]),
+    })),
+  };
+
+  const mockSubscriptionRepository = {
+    count: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn().mockResolvedValue([]),
+      getRawOne: jest.fn().mockResolvedValue({ total: '0' }),
+    })),
+  };
+
+  const mockTransactionRepository = {
+    count: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      addSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn().mockResolvedValue([]),
+      getRawOne: jest.fn().mockResolvedValue({ total: '0' }),
+    })),
   };
 
   const mockOracleService = {
@@ -59,6 +103,18 @@ describe('AdminAnalyticsService', () => {
         {
           provide: getRepositoryToken(ProtocolMetrics),
           useValue: mockProtocolMetricsRepository,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: mockUserRepository,
+        },
+        {
+          provide: getRepositoryToken(UserSubscription),
+          useValue: mockSubscriptionRepository,
+        },
+        {
+          provide: getRepositoryToken(Transaction),
+          useValue: mockTransactionRepository,
         },
         {
           provide: OracleService,

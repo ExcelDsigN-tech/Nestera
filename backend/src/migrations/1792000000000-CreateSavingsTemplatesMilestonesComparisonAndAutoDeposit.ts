@@ -1,13 +1,6 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableIndex,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
 
-export class CreateSavingsTemplatesMilestonesComparisonAndAutoDeposit1792000000000
-  implements MigrationInterface
-{
+export class CreateSavingsTemplatesMilestonesComparisonAndAutoDeposit1792000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -34,7 +27,12 @@ export class CreateSavingsTemplatesMilestonesComparisonAndAutoDeposit17920000000
           },
           { name: 'icon', type: 'varchar', length: '120', isNullable: false },
           { name: 'metadata', type: 'jsonb', isNullable: true },
-          { name: 'isActive', type: 'boolean', default: true, isNullable: false },
+          {
+            name: 'isActive',
+            type: 'boolean',
+            default: true,
+            isNullable: false,
+          },
           { name: 'createdAt', type: 'timestamp', default: 'now()' },
           { name: 'updatedAt', type: 'timestamp', default: 'now()' },
         ],
@@ -73,7 +71,10 @@ export class CreateSavingsTemplatesMilestonesComparisonAndAutoDeposit17920000000
 
     await queryRunner.createIndex(
       'savings_goal_template_usage',
-      new TableIndex({ name: 'IDX_SAVINGS_TEMPLATE_USAGE_TEMPLATE', columnNames: ['templateId'] }),
+      new TableIndex({
+        name: 'IDX_SAVINGS_TEMPLATE_USAGE_TEMPLATE',
+        columnNames: ['templateId'],
+      }),
     );
 
     await queryRunner.createTable(
@@ -111,7 +112,12 @@ export class CreateSavingsTemplatesMilestonesComparisonAndAutoDeposit17920000000
             isNullable: true,
           },
           { name: 'bonusPoints', type: 'int', default: 0, isNullable: false },
-          { name: 'shareCode', type: 'varchar', length: '120', isNullable: true },
+          {
+            name: 'shareCode',
+            type: 'varchar',
+            length: '120',
+            isNullable: true,
+          },
           { name: 'metadata', type: 'jsonb', isNullable: true },
           { name: 'createdAt', type: 'timestamp', default: 'now()' },
         ],
