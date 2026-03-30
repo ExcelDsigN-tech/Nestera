@@ -40,7 +40,6 @@ import { Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { SavingsProductVersionAudit } from './entities/savings-product-version-audit.entity';
-import { Repository } from 'typeorm';
 import { WaitlistService } from './waitlist.service';
 
 export type SavingsGoalProgress = GoalProgressDto;
@@ -170,6 +169,7 @@ export class SavingsService {
       return savedVersion;
     }
 
+    const previousIsActive = product.isActive;
     Object.assign(product, dto);
     const updatedProduct = await this.productRepository.save(product);
     await this.recordVersionAudit(updatedProduct, {
@@ -180,9 +180,6 @@ export class SavingsService {
         changedFields: this.getChangedFields(product, dto),
       },
     });
-    const previousIsActive = product.isActive;
-    Object.assign(product, dto);
-    const updatedProduct = await this.productRepository.save(product);
     await this.syncCapacityState(updatedProduct);
     await this.invalidatePoolsCache();
 
@@ -220,32 +217,6 @@ export class SavingsService {
       relations: ['subscriptions'],
     });
 
-    const dtos: SavingsProductDto[] = products.map((product) => {
-      // Calculate TVL by summing active subscriptions
-      const tvlAmount = product.subscriptions
-        ? product.subscriptions
-            .filter((s) => s.status === SubscriptionStatus.ACTIVE)
-            .reduce((sum, s) => sum + Number(s.amount), 0)
-        : 0;
-
-      return {
-        id: product.id,
-        name: product.name,
-        type: product.type,
-        description: product.description,
-        interestRate: Number(product.interestRate),
-        minAmount: Number(product.minAmount),
-        maxAmount: Number(product.maxAmount),
-        tenureMonths: product.tenureMonths,
-        contractId: product.contractId,
-        isActive: product.isActive,
-        version: product.version ?? 1,
-        riskLevel: product.riskLevel || RiskLevel.LOW,
-        tvlAmount,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      };
-    });
     const dtos: SavingsProductDto[] = await Promise.all(
       products.map(async (product) => {
         // Calculate TVL by summing active subscriptions
@@ -267,6 +238,7 @@ export class SavingsService {
           tenureMonths: product.tenureMonths,
           contractId: product.contractId,
           isActive: product.isActive,
+          version: product.version ?? 1,
           riskLevel: product.riskLevel || RiskLevel.LOW,
           tvlAmount,
           maxCapacity: capacity.maxCapacity,
@@ -1055,6 +1027,8 @@ export class SavingsService {
         metadata: options.metadata ?? null,
       }),
     );
+  }
+
   private async syncCapacityState(
     product: SavingsProduct,
   ): Promise<SavingsProduct> {

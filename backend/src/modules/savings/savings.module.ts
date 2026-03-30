@@ -15,10 +15,22 @@ import { WaitlistEntry } from './entities/waitlist-entry.entity';
 import { WaitlistEvent } from './entities/waitlist-event.entity';
 import { WaitlistService } from './waitlist.service';
 import { WaitlistController } from './waitlist.controller';
+import { SavingsGoalTemplate } from './entities/savings-goal-template.entity';
+import { SavingsGoalTemplateUsage } from './entities/savings-goal-template-usage.entity';
+import { SavingsGoalMilestone } from './entities/savings-goal-milestone.entity';
+import { SavingsProductPerformance } from './entities/savings-product-performance.entity';
+import { AutoDepositSchedule } from './entities/auto-deposit-schedule.entity';
+import { GoalTemplatesService } from './services/goal-templates.service';
+import { GoalMilestonesService } from './services/goal-milestones.service';
+import { ProductComparisonService } from './services/product-comparison.service';
+import { AutoDepositService } from './services/auto-deposit.service';
+import { MailModule } from '../mail/mail.module';
+import { MilestoneRewardsService } from './services/milestone-rewards.service';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
+    MailModule,
     TypeOrmModule.forFeature([
       SavingsProduct,
       UserSubscription,
@@ -28,10 +40,25 @@ import { WaitlistController } from './waitlist.controller';
       User,
       WaitlistEntry,
       WaitlistEvent,
+      SavingsGoalTemplate,
+      SavingsGoalTemplateUsage,
+      SavingsGoalMilestone,
+      SavingsProductPerformance,
+      AutoDepositSchedule,
     ]),
   ],
   controllers: [SavingsController, WaitlistController],
-  providers: [SavingsService, PredictiveEvaluatorService, WaitlistService],
+  providers: [
+    SavingsService,
+    PredictiveEvaluatorService,
+    RecommendationService,
+    WaitlistService,
+    GoalTemplatesService,
+    GoalMilestonesService,
+    ProductComparisonService,
+    AutoDepositService,
+    MilestoneRewardsService,
+  ],
   exports: [SavingsService, WaitlistService],
 })
 export class SavingsModule {}

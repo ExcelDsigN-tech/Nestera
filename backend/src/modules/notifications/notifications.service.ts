@@ -35,6 +35,20 @@ export interface ClaimUpdatedEvent {
   timestamp: Date;
 }
 
+export interface AutoDepositExecutedEvent {
+  userId: string;
+  scheduleId: string;
+  amount: number;
+  productId: string;
+}
+
+export interface AutoDepositFailedEvent {
+  userId: string;
+  scheduleId: string;
+  retryCount: number;
+  reason?: string;
+}
+
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
@@ -249,6 +263,49 @@ export class NotificationsService {
     } catch (error) {
       this.logger.error(
         `Error processing claim.updated event for claim ${event.claimId}`,
+        error,
+      );
+    }
+  }
+
+  @OnEvent('savings.auto_deposit.executed')
+  async handleAutoDepositExecuted(event: AutoDepositExecutedEvent) {
+    try {
+      await this.createNotification({
+        userId: event.userId,
+        type: NotificationType.DEPOSIT_RECEIVED,
+        title: 'Auto-deposit completed',
+        message: `Scheduled deposit of ${event.amount} was completed successfully.`,
+        metadata: {
+          scheduleId: event.scheduleId,
+          productId: event.productId,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error creating auto-deposit success notification for ${event.userId}`,
+        error,
+      );
+    }
+  }
+
+  @OnEvent('savings.auto_deposit.failed')
+  async handleAutoDepositFailed(event: AutoDepositFailedEvent) {
+    try {
+      await this.createNotification({
+        userId: event.userId,
+        type: NotificationType.PRODUCT_ALERT_TRIGGERED,
+        title: 'Auto-deposit failed',
+        message: `Scheduled deposit failed (attempt ${event.retryCount}). ${event.reason ?? 'Please check your schedule settings.'}`,
+        metadata: {
+          scheduleId: event.scheduleId,
+          retryCount: event.retryCount,
+          reason: event.reason,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error creating auto-deposit failure notification for ${event.userId}`,
         error,
       );
     }

@@ -39,6 +39,14 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RpcThrottleGuard } from '../../common/guards/rpc-throttle.guard';
 import { RecommendationService } from './services/recommendation.service';
+import { GoalTemplatesService } from './services/goal-templates.service';
+import { CreateGoalFromTemplateDto } from './dto/create-goal-from-template.dto';
+import { GoalMilestonesService } from './services/goal-milestones.service';
+import { CreateCustomMilestoneDto } from './dto/create-custom-milestone.dto';
+import { ProductComparisonService } from './services/product-comparison.service';
+import { CompareProductsDto } from './dto/compare-products.dto';
+import { AutoDepositService } from './services/auto-deposit.service';
+import { CreateAutoDepositDto } from './dto/create-auto-deposit.dto';
 import {
   SavingsGoalProgress,
   UserSubscriptionWithLiveBalance,
@@ -50,7 +58,37 @@ export class SavingsController {
   constructor(
     private readonly savingsService: SavingsService,
     private readonly recommendationService: RecommendationService,
+    private readonly goalTemplatesService: GoalTemplatesService,
+    private readonly goalMilestonesService: GoalMilestonesService,
+    private readonly productComparisonService: ProductComparisonService,
+    private readonly autoDepositService: AutoDepositService,
   ) {}
+
+  @Get('goals/templates')
+  @ApiOperation({ summary: 'List predefined savings goal templates' })
+  @ApiResponse({ status: 200, description: 'Savings goal templates list' })
+  async getGoalTemplates() {
+    return this.goalTemplatesService.listTemplates();
+  }
+
+  @Post('goals/from-template/:id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Create savings goal from template with optional custom values',
+  })
+  async createGoalFromTemplate(
+    @Param('id') templateId: string,
+    @Body() dto: CreateGoalFromTemplateDto,
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.goalTemplatesService.createGoalFromTemplate(
+      user.id,
+      templateId,
+      dto,
+    );
+  }
 
   @Get('products')
   @UseInterceptors(CacheInterceptor)
@@ -310,5 +348,87 @@ export class SavingsController {
     @CurrentUser() user: { id: string; email: string },
   ): Promise<void> {
     return await this.savingsService.deleteGoal(id, user.id);
+  }
+
+  @Get('goals/:id/milestones')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get milestone history for a savings goal' })
+  async getGoalMilestones(
+    @Param('id') goalId: string,
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.goalMilestonesService.getGoalMilestones(user.id, goalId);
+  }
+
+  @Post('goals/:id/milestones/custom')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add a custom milestone for a savings goal' })
+  async addCustomMilestone(
+    @Param('id') goalId: string,
+    @Body() dto: CreateCustomMilestoneDto,
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.goalMilestonesService.addCustomMilestone(user.id, goalId, dto);
+  }
+
+  @Post('products/compare')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Compare up to five savings products with projections and ranking',
+  })
+  async compareProducts(
+    @Body() dto: CompareProductsDto,
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.productComparisonService.compareProducts(user.id, dto.productIds);
+  }
+
+  @Post('auto-deposit/create')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create recurring auto-deposit schedule' })
+  async createAutoDepositSchedule(
+    @Body() dto: CreateAutoDepositDto,
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.autoDepositService.createSchedule(user.id, dto);
+  }
+
+  @Get('auto-deposit')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List all recurring auto-deposit schedules for user' })
+  async listAutoDepositSchedules(
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.autoDepositService.listSchedules(user.id);
+  }
+
+  @Patch('auto-deposit/:id/pause')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Pause an existing auto-deposit schedule' })
+  async pauseAutoDepositSchedule(
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string; email: string },
+  ) {
+    return this.autoDepositService.pauseSchedule(user.id, id);
+  }
+
+  @Delete('auto-deposit/:id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cancel an auto-deposit schedule' })
+  async cancelAutoDepositSchedule(
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string; email: string },
+  ): Promise<void> {
+    await this.autoDepositService.cancelSchedule(user.id, id);
   }
 }

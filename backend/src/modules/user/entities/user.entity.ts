@@ -71,6 +71,9 @@ export class User {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  @Column({ type: 'int', default: 0 })
+  rewardPoints: number;
+
   @Column({ type: 'timestamp', nullable: true })
   lastLoginAt: Date | null;
 
